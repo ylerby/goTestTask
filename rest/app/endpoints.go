@@ -4,6 +4,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getUrl(c *gin.Context) {}
+type DbInterface interface {
+	connect() error
+	get(url string) (string, error)
+	create(shortUrl, fullUrl string) error
+	closeConnect() error
+}
 
-func postUrl(c *gin.Context) {}
+type SqlDatabase struct{}
+
+type InMemoryDatabase struct{}
+
+func getUrl(c *gin.Context) {
+}
+
+func postUrl(c *gin.Context) {
+}
