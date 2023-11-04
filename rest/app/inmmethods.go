@@ -1,5 +1,7 @@
 package app
 
+import "fmt"
+
 var dbMap map[string]string
 
 func (i *InMemoryDatabase) connect() error {
@@ -8,6 +10,10 @@ func (i *InMemoryDatabase) connect() error {
 }
 
 func (i *InMemoryDatabase) create(shortUrl, fullUrl string) error {
+	if !IsUrl(shortUrl) || !IsUrl(fullUrl) {
+		return fmt.Errorf("переданы некорректные url")
+	}
+	dbMap[shortUrl] = fullUrl
 	return nil
 }
 

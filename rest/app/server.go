@@ -25,7 +25,7 @@ func Server(dbType *string) {
 
 	default:
 		logger.Println("некорректное значение", "текущая бд - ", database)
-		os.Exit(-1)
+		os.Exit(418)
 	}
 
 	err := database.connect()
