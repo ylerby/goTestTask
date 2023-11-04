@@ -29,7 +29,10 @@ func getUrl(c *gin.Context) {
 		shortUrl string
 	}
 
-	c.Bind(&urlRequest)
+	err := c.Bind(&urlRequest)
+	if err != nil {
+		logger.Println("ошибка при получении url-адреса из тела запроса")
+	}
 
 	fullUrl, err := database.get(urlRequest.shortUrl)
 	if err != nil {
@@ -46,7 +49,10 @@ func postUrl(c *gin.Context) {
 		fullUrl string
 	}
 
-	c.Bind(&urlRequest)
+	err := c.Bind(&urlRequest)
+	if err != nil {
+		logger.Println("ошибка при получении url-адреса из тела запроса")
+	}
 
 	shortUrl, err := makeShortUrl(urlRequest.fullUrl)
 	if err != nil {
@@ -56,6 +62,7 @@ func postUrl(c *gin.Context) {
 	c.String(http.StatusOK, shortUrl)
 }
 
+// makeShortUrl todo: сделать двойное хеширование url-адреса
 func makeShortUrl(fullUrl string) (string, error) {
-	return "", nil
+	return fullUrl, nil
 }

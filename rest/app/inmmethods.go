@@ -18,7 +18,11 @@ func (i *InMemoryDatabase) create(shortUrl, fullUrl string) error {
 }
 
 func (i *InMemoryDatabase) get(url string) (string, error) {
-	return dbMap[url], nil
+	value, ok := dbMap[url]
+	if !ok {
+		return "", fmt.Errorf("значение не найдено")
+	}
+	return value, nil
 }
 
 func (i *InMemoryDatabase) closeConnect() error {
