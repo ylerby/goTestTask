@@ -33,13 +33,6 @@ func Server(dbType *string) {
 		logger.Println("ошибка при соединении с БД")
 	}
 
-	defer func() {
-		err := database.closeConnect()
-		if err != nil {
-			logger.Println("ошибка при закрытии соединения с БД")
-		}
-	}()
-
 	server.GET("/get_url", getUrl)
 	server.POST("/post_url", postUrl)
 

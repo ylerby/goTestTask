@@ -8,9 +8,8 @@ import (
 
 type DbInterface interface {
 	connect() error
-	get(url string) (string, error)
+	getShortUrl(url string) (string, error)
 	create(shortUrl, fullUrl string) error
-	closeConnect() error
 }
 
 type SqlDatabase struct{}
@@ -34,7 +33,7 @@ func getUrl(c *gin.Context) {
 		logger.Println("ошибка при получении url-адреса из тела запроса")
 	}
 
-	fullUrl, err := database.get(urlRequest.shortUrl)
+	fullUrl, err := database.getShortUrl(urlRequest.shortUrl)
 	if err != nil {
 		logger.Println("ошибка при получении полного url-адреса")
 	}
@@ -62,7 +61,7 @@ func postUrl(c *gin.Context) {
 	c.String(http.StatusOK, shortUrl)
 }
 
-// makeShortUrl todo: сделать двойное хеширование url-адреса
+// makeShortUrl todo: сделать хеширование url-адреса
 func makeShortUrl(fullUrl string) (string, error) {
 	return fullUrl, nil
 }

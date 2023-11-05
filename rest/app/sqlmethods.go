@@ -31,7 +31,6 @@ func (s *SqlDatabase) connect() error {
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
 	dbSql = db
 	if err != nil {
 		fmt.Errorf("ошибка при подключении к БД")
@@ -41,6 +40,7 @@ func (s *SqlDatabase) connect() error {
 	if err != nil {
 		return fmt.Errorf("ошибка при миграции")
 	}
+
 	return nil
 }
 
@@ -49,10 +49,13 @@ func initSchema() error {
 }
 
 // get fixme: переделать получение поля из базы данных !
-func (s *SqlDatabase) get(url string) (string, error) {
+func (s *SqlDatabase) getShortUrl(url string) (string, error) {
 	var urlRequest model.SqlModel
-	dbSql.First(&urlRequest, "url = ?", "1b74413f-f3b8-409f-ac47-e8c062e3472a")
-	return "", nil
+	err := dbSql.First(&urlRequest, "url = ?", urlRequest.ShortUrl).Error
+	if err != nil {
+		return "", fmt.Errorf("сокращенный url не найден")
+	}
+	return urlRequest.ShortUrl, nil
 }
 
 func (s *SqlDatabase) create(shortUrl, fullUrl string) error {
@@ -60,10 +63,5 @@ func (s *SqlDatabase) create(shortUrl, fullUrl string) error {
 		return fmt.Errorf("переданы некорректные url")
 	}
 	dbMap[shortUrl] = fullUrl
-	return nil
-}
-
-func (s *SqlDatabase) closeConnect() error {
-	logger.Println("соединение успешно закрыто")
 	return nil
 }
