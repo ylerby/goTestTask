@@ -10,7 +10,9 @@ import (
 	model "rest/app/model"
 )
 
-var dbSql *gorm.DB
+type SqlDatabase struct {
+	dbSql *gorm.DB
+}
 
 func (s *SqlDatabase) connect() error {
 	wd, err := os.Getwd()
@@ -18,25 +20,27 @@ func (s *SqlDatabase) connect() error {
 		return fmt.Errorf("ошибка получения текущей директории")
 	}
 
-	envPath := filepath.Join(wd, "..", ".env")
+	envPath := filepath.Join(wd, "..", "rest", ".env")
 
 	err = godotenv.Load(envPath)
 	if err != nil {
 		return fmt.Errorf("ошибка получения environment файла")
 	}
 
-	dsn := fmt.Sprintf("host=%s user=%s dbname=%s port=%s, sslmode=disable TimeZone=Europe/Moscow",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"))
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	dbSql = db
+	s.dbSql = db
 	if err != nil {
 		fmt.Errorf("ошибка при подключении к БД")
 	}
 
-	err = initSchema()
+	err = s.dbSql.AutoMigrate(&model.SqlModel{})
 	if err != nil {
 		return fmt.Errorf("ошибка при миграции")
 	}
@@ -44,14 +48,10 @@ func (s *SqlDatabase) connect() error {
 	return nil
 }
 
-func initSchema() error {
-	return dbSql.AutoMigrate(&model.SqlModel{})
-}
-
 // get fixme: переделать получение поля из базы данных !
 func (s *SqlDatabase) getShortUrl(url string) (string, error) {
 	var urlRequest model.SqlModel
-	err := dbSql.First(&urlRequest, "url = ?", urlRequest.ShortUrl).Error
+	err := s.dbSql.Find(&urlRequest, "url = ?", url).Error
 	if err != nil {
 		return "", fmt.Errorf("сокращенный url не найден")
 	}
@@ -62,6 +62,6 @@ func (s *SqlDatabase) create(shortUrl, fullUrl string) error {
 	if !IsUrl(shortUrl) || !IsUrl(fullUrl) {
 		return fmt.Errorf("переданы некорректные url")
 	}
-	dbMap[shortUrl] = fullUrl
+	//s.dbMap[shortUrl] = fullUrl
 	return nil
 }

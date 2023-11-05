@@ -12,10 +12,6 @@ type DbInterface interface {
 	create(shortUrl, fullUrl string) error
 }
 
-type SqlDatabase struct{}
-
-type InMemoryDatabase struct{}
-
 func IsUrl(urlAddress string) bool {
 	u, err := url.Parse(urlAddress)
 	return err == nil && u.Scheme != "" && u.Host != ""

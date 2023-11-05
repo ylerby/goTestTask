@@ -1,8 +1,7 @@
 package app
 
-// SqlModel todo:дописать модель
 type SqlModel struct {
-	Id       int `gorm:"primaryKey;autoIncrement"`
-	FullUrl  string
-	ShortUrl string
+	Id       int    `gorm:"primaryKey;autoIncrement"`
+	FullUrl  string `gorm:"column:full_url"`
+	ShortUrl string `gorm:"column:short_url"`
 }

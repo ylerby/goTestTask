@@ -30,7 +30,7 @@ func Server(dbType *string) {
 
 	err := database.connect()
 	if err != nil {
-		logger.Println("ошибка при соединении с БД")
+		logger.Println(err)
 	}
 
 	server.GET("/get_url", getUrl)
