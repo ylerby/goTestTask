@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -49,23 +50,29 @@ func (s *SqlDatabase) connect() error {
 }
 
 // get fixme: переделать получение поля из базы данных !
-func (s *SqlDatabase) getShortUrl(url string) (string, error) {
+func (s *SqlDatabase) getFullUrl(url string) (string, error) {
 	var urlRequest model.SqlModel
-	err := s.dbSql.Find(&urlRequest, "url = ?", url).Error
+	err := s.dbSql.Find(&urlRequest, "short_url = ?", url).Error
 	if err != nil {
 		return "", fmt.Errorf("сокращенный url не найден")
 	}
-	return urlRequest.ShortUrl, nil
+	return urlRequest.FullUrl, nil
 }
 
 func (s *SqlDatabase) create(shortUrl, fullUrl string) error {
-	if !IsUrl(shortUrl) || !IsUrl(fullUrl) {
+	if !IsUrl(fullUrl) {
 		return fmt.Errorf("переданы некорректные url")
 	}
 
 	newUrl := model.SqlModel{
 		ShortUrl: shortUrl,
 		FullUrl:  fullUrl,
+	}
+
+	result := s.dbSql.First(&newUrl, fullUrl)
+	err := !errors.Is(result.Error, gorm.ErrRecordNotFound)
+	if err {
+		return fmt.Errorf("данное значение уже существует")
 	}
 
 	s.dbSql.Create(&newUrl)

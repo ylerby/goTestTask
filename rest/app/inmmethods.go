@@ -11,8 +11,9 @@ func (i *InMemoryDatabase) connect() error {
 	return nil
 }
 
-func (i *InMemoryDatabase) getShortUrl(url string) (string, error) {
+func (i *InMemoryDatabase) getFullUrl(url string) (string, error) {
 	value, ok := i.dbMap[url]
+	logger.Println(i.dbMap)
 	if !ok {
 		return "", fmt.Errorf("значение не найдено")
 	}
@@ -20,14 +21,14 @@ func (i *InMemoryDatabase) getShortUrl(url string) (string, error) {
 }
 
 func (i *InMemoryDatabase) create(shortUrl, fullUrl string) error {
-	if !IsUrl(shortUrl) || !IsUrl(fullUrl) {
+	if !IsUrl(fullUrl) {
 		return fmt.Errorf("переданы некорректные url")
 	}
-	_, ok := i.dbMap[fullUrl]
+	_, ok := i.dbMap[shortUrl]
 	if ok {
-		return fmt.Errorf("сокращенный url для данного url уже существует")
+		return fmt.Errorf("сокращенный url уже существует")
 	}
 
-	i.dbMap[fullUrl] = shortUrl
+	i.dbMap[shortUrl] = fullUrl
 	return nil
 }

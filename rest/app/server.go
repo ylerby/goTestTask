@@ -18,11 +18,9 @@ func Server(dbType *string) {
 
 	case "sql":
 		database = &SqlDatabase{}
-		logger.Println("sql")
 
 	case "in_memory":
 		database = &InMemoryDatabase{}
-		logger.Println("in memory database")
 
 	default:
 		logger.Println("некорректное значение", "текущая бд - ", database)

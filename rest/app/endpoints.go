@@ -11,15 +11,15 @@ import (
 
 // todo: Docker-образ
 // todo: Unit-тесты
-// todo: grpc
 
 type DbInterface interface {
 	connect() error
-	getShortUrl(url string) (string, error)
+	getFullUrl(url string) (string, error)
 	create(shortUrl, fullUrl string) error
 }
 
 func IsUrl(urlAddress string) bool {
+	logger.Println(urlAddress)
 	u, err := url.Parse(urlAddress)
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
@@ -28,17 +28,17 @@ func getUrl(c *gin.Context) {
 	logger.Println("запрос на получение полного url-адреса")
 
 	var urlRequest struct {
-		shortUrl string
+		ShortUrl string `json:"short_url"`
 	}
 
-	err := c.Bind(&urlRequest)
+	err := c.BindJSON(&urlRequest)
 	if err != nil {
 		logger.Println("ошибка при получении url-адреса из тела запроса")
 	}
-
-	fullUrl, err := database.getShortUrl(urlRequest.shortUrl)
+	fullUrl, err := database.getFullUrl(urlRequest.ShortUrl)
 	if err != nil {
-		logger.Println("ошибка при получении полного url-адреса")
+		logger.Println(err)
+		c.String(http.StatusOK, "значение не найдено")
 	}
 
 	c.String(http.StatusOK, fullUrl)
@@ -48,20 +48,20 @@ func postUrl(c *gin.Context) {
 	logger.Println("запрос на получение сокращенного url-адреса")
 
 	var urlRequest struct {
-		fullUrl string
+		FullUrl string `json:"full_url"`
 	}
 
-	err := c.Bind(&urlRequest)
+	err := c.BindJSON(&urlRequest)
 	if err != nil {
 		logger.Println("ошибка при получении url-адреса из тела запроса")
 	}
 
-	shortUrl := makeShortUrl(urlRequest.fullUrl)
+	shortUrl := makeShortUrl(urlRequest.FullUrl)
 	if err != nil {
 		logger.Println("ошибка при создании сокращенного url-адреса")
 	}
 
-	err = database.create(shortUrl, urlRequest.fullUrl)
+	err = database.create(shortUrl, urlRequest.FullUrl)
 	if err != nil {
 		logger.Println(err)
 	}
@@ -69,15 +69,16 @@ func postUrl(c *gin.Context) {
 	c.String(http.StatusOK, shortUrl)
 }
 
-// makeShortUrl todo: сделать хеширование url-адреса
 func makeShortUrl(fullUrl string) string {
 	charSet := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
 	hash := sha1.Sum([]byte(fullUrl))
 	hashString := hex.EncodeToString(hash[:])
 
-	uniqueHash := getUniqueHash(hashString, charSet)
+	shortUrl := getUniqueHash(hashString, charSet)
 
-	return uniqueHash
+	logger.Println("Изначальный url = ", fullUrl)
+	logger.Println("Сокращенный url = ", shortUrl)
+	return shortUrl
 }
 
 func getUniqueHash(hash string, charSet string) string {
