@@ -12,6 +12,7 @@ var (
 )
 
 func Server(dbType *string) {
+	logger.Println(makeShortUrl("http://localhost:8080"))
 	server := gin.Default()
 	switch *dbType {
 

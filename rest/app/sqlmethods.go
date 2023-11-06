@@ -62,6 +62,13 @@ func (s *SqlDatabase) create(shortUrl, fullUrl string) error {
 	if !IsUrl(shortUrl) || !IsUrl(fullUrl) {
 		return fmt.Errorf("переданы некорректные url")
 	}
-	//s.dbMap[shortUrl] = fullUrl
+
+	newUrl := model.SqlModel{
+		ShortUrl: shortUrl,
+		FullUrl:  fullUrl,
+	}
+
+	s.dbSql.Create(&newUrl)
+
 	return nil
 }

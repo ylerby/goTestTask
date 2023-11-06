@@ -1,10 +1,17 @@
 package app
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
+	"strings"
 )
+
+// todo: Docker-образ
+// todo: Unit-тесты
+// todo: grpc
 
 type DbInterface interface {
 	connect() error
@@ -49,15 +56,41 @@ func postUrl(c *gin.Context) {
 		logger.Println("ошибка при получении url-адреса из тела запроса")
 	}
 
-	shortUrl, err := makeShortUrl(urlRequest.fullUrl)
+	shortUrl := makeShortUrl(urlRequest.fullUrl)
 	if err != nil {
-		logger.Println("ошибка при получении сокращенного url-адреса")
+		logger.Println("ошибка при создании сокращенного url-адреса")
+	}
+
+	err = database.create(shortUrl, urlRequest.fullUrl)
+	if err != nil {
+		logger.Println(err)
 	}
 
 	c.String(http.StatusOK, shortUrl)
 }
 
 // makeShortUrl todo: сделать хеширование url-адреса
-func makeShortUrl(fullUrl string) (string, error) {
-	return fullUrl, nil
+func makeShortUrl(fullUrl string) string {
+	charSet := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
+	hash := sha1.Sum([]byte(fullUrl))
+	hashString := hex.EncodeToString(hash[:])
+
+	uniqueHash := getUniqueHash(hashString, charSet)
+
+	return uniqueHash
+}
+
+func getUniqueHash(hash string, charSet string) string {
+	var uniqueHash strings.Builder
+
+	for _, c := range hash {
+		if strings.ContainsRune(charSet, c) {
+			uniqueHash.WriteRune(c)
+			if uniqueHash.Len() == 10 {
+				break
+			}
+		}
+	}
+
+	return "http://my_service/" + uniqueHash.String()
 }
