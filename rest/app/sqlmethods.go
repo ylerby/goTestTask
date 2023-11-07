@@ -20,21 +20,21 @@ func (s *SqlDatabase) connect() error {
 	if err != nil {
 		return fmt.Errorf("ошибка получения текущей директории")
 	}
-
 	envPath := filepath.Join(wd, "..", "rest", ".env")
 
 	err = godotenv.Load(envPath)
 	if err != nil {
-		return fmt.Errorf("ошибка получения environment файла")
-	}
-
+		logger.Println("env error")
+		//return fmt.Errorf("ошибка получения environment файла")
+	} 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"))
-
+	
+	logger.Println("host = ", os.Getenv("DB_HOST"))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	s.dbSql = db
 	if err != nil {
