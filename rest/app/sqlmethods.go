@@ -24,17 +24,15 @@ func (s *SqlDatabase) connect() error {
 
 	err = godotenv.Load(envPath)
 	if err != nil {
-		logger.Println("env error")
-		//return fmt.Errorf("ошибка получения environment файла")
-	} 
+		return fmt.Errorf("ошибка получения environment файла")
+	}
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"))
-	
-	logger.Println("host = ", os.Getenv("DB_HOST"))
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	s.dbSql = db
 	if err != nil {
@@ -68,15 +66,13 @@ func (s *SqlDatabase) create(shortUrl, fullUrl string) error {
 		ShortUrl: shortUrl,
 		FullUrl:  fullUrl,
 	}
-	
+
 	// todo: переписать логику добавления нового url-адреса (не добавляется новый (уникальный) url-адрес.
 	result := s.dbSql.First(&newUrl, fullUrl)
-	err := !errors.Is(result.Error, gorm.ErrRecordNotFound)
-	if err {
-		return fmt.Errorf("данное значение уже существует")
+	ok := !errors.Is(result.Error, gorm.ErrRecordNotFound)
+	if ok {
+		s.dbSql.Create(&newUrl)
+		return nil
 	}
-
-	s.dbSql.Create(&newUrl)
-
-	return nil
+	return fmt.Errorf("данное значение уже существует")
 }
