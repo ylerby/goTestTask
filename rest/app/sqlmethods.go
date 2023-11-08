@@ -68,7 +68,8 @@ func (s *SqlDatabase) create(shortUrl, fullUrl string) error {
 		ShortUrl: shortUrl,
 		FullUrl:  fullUrl,
 	}
-
+	
+	// todo: переписать логику добавления нового url-адреса (не добавляется новый (уникальный) url-адрес.
 	result := s.dbSql.First(&newUrl, fullUrl)
 	err := !errors.Is(result.Error, gorm.ErrRecordNotFound)
 	if err {
