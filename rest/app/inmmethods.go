@@ -2,25 +2,30 @@ package app
 
 import "fmt"
 
-var dbMap map[string]string
+type InMemoryDatabase struct {
+	dbMap map[string]string
+}
 
 func (i *InMemoryDatabase) connect() error {
-	dbMap = map[string]string{}
+	i.dbMap = map[string]string{}
 	return nil
 }
 
-func (i *InMemoryDatabase) create(shortUrl, fullUrl string) error {
-	if !IsUrl(shortUrl) || !IsUrl(fullUrl) {
-		return fmt.Errorf("переданы некорректные url")
-	}
-	dbMap[fullUrl] = shortUrl
-	return nil
-}
-
-func (i *InMemoryDatabase) getShortUrl(url string) (string, error) {
-	value, ok := dbMap[url]
+func (i *InMemoryDatabase) getFullUrl(url string) (string, error) {
+	value, ok := i.dbMap[url]
+	logger.Println(i.dbMap)
 	if !ok {
 		return "", fmt.Errorf("значение не найдено")
 	}
 	return value, nil
+}
+
+func (i *InMemoryDatabase) create(shortUrl, fullUrl string) error {
+	_, ok := i.dbMap[shortUrl]
+	if ok {
+		return fmt.Errorf("сокращенный url уже существует")
+	}
+
+	i.dbMap[shortUrl] = fullUrl
+	return nil
 }

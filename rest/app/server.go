@@ -17,11 +17,9 @@ func Server(dbType *string) {
 
 	case "sql":
 		database = &SqlDatabase{}
-		logger.Println("sql")
 
 	case "in_memory":
 		database = &InMemoryDatabase{}
-		logger.Println("in memory database")
 
 	default:
 		logger.Println("некорректное значение", "текущая бд - ", database)
@@ -30,7 +28,7 @@ func Server(dbType *string) {
 
 	err := database.connect()
 	if err != nil {
-		logger.Println("ошибка при соединении с БД")
+		logger.Println(err)
 	}
 
 	server.GET("/get_url", getUrl)
