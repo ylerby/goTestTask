@@ -21,9 +21,6 @@ func (i *InMemoryDatabase) getFullUrl(url string) (string, error) {
 }
 
 func (i *InMemoryDatabase) create(shortUrl, fullUrl string) error {
-	if !IsUrl(fullUrl) {
-		return fmt.Errorf("переданы некорректные url")
-	}
 	_, ok := i.dbMap[shortUrl]
 	if ok {
 		return fmt.Errorf("сокращенный url уже существует")

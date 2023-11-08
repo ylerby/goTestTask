@@ -3,14 +3,12 @@ package app
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
 	"strings"
 )
-
-// todo: Docker-образ
-// todo: Unit-тесты
 
 type DbInterface interface {
 	connect() error
@@ -56,7 +54,7 @@ func postUrl(c *gin.Context) {
 		logger.Println("ошибка при получении url-адреса из тела запроса")
 	}
 
-	shortUrl := makeShortUrl(urlRequest.FullUrl)
+	shortUrl, err := MakeShortUrl(urlRequest.FullUrl)
 	if err != nil {
 		logger.Println("ошибка при создании сокращенного url-адреса")
 	}
@@ -69,7 +67,10 @@ func postUrl(c *gin.Context) {
 	c.String(http.StatusOK, shortUrl)
 }
 
-func makeShortUrl(fullUrl string) string {
+func MakeShortUrl(fullUrl string) (string, error) {
+	if !IsUrl(fullUrl) {
+		return "", fmt.Errorf("переданы некорректные url")
+	}
 	charSet := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
 	hash := sha1.Sum([]byte(fullUrl))
 	hashString := hex.EncodeToString(hash[:])
@@ -78,7 +79,7 @@ func makeShortUrl(fullUrl string) string {
 
 	logger.Println("Изначальный url = ", fullUrl)
 	logger.Println("Сокращенный url = ", shortUrl)
-	return shortUrl
+	return shortUrl, nil
 }
 
 func getUniqueHash(hash string, charSet string) string {
