@@ -13,6 +13,11 @@ services:
       - ./infrastructure/db/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
       - db-data:/var/lib/postgresql/data
     restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout:  30s
+      retries:  10
     networks:
       - go_app
 
@@ -21,14 +26,14 @@ services:
       context: .
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: go_test_task
-    command: ["go", "run", "main.go", "-db", "sql"]
+    command: ["go", "run", "main.go", "-db", "in_memory"]
     volumes:
       - .:/app
     ports:
