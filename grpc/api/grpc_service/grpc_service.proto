@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package grpc_service;
+
+option go_package = "goTestTask/grpc/pkg/grpc_service";
+
+service FullUrl {
+  rpc GetFullUrl(GetFullUrlRequest) returns (GetFullUrlResponse);
+}
+
+service ShortUrl {
+  rpc GetShortUrl(GetShortUrlRequest) returns (GetShortUrlResponse);
+}
+
+message GetShortUrlRequest {
+  string full_url = 1;
+}
+
+message GetShortUrlResponse {
+  string short_url = 1;
+}
+
+message GetFullUrlRequest {
+  string short_url = 1;
+}
+
+message GetFullUrlResponse {
+  string full_url = 1;
+}
