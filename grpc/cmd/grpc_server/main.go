@@ -33,7 +33,6 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("успешное подключение к БД")
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
 	if err != nil {
