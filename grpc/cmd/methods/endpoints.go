@@ -49,7 +49,7 @@ func (s *Server) GetShortUrl(_ context.Context, req *service.GetShortUrlRequest)
 	if err != nil {
 		return nil, err
 	}
-	return &service.GetShortUrlResponse{ShortUrl: fullUrl}, nil
+	return &service.GetShortUrlResponse{ShortUrl: shortUrl}, nil
 }
 
 func MakeShortUrl(fullUrl string) (string, error) {
@@ -79,5 +79,5 @@ func getUniqueHash(hash string, charSet string) string {
 		}
 	}
 
-	return "http://my_service/" + uniqueHash.String()
+	return uniqueHash.String()
 }

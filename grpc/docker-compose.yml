@@ -35,9 +35,9 @@ services:
       DB_NAME: go_test_task
     command: ["go", "run", "main.go", "-db", "sql"]
     volumes:
-      - .:/app
+      - .:/cmd
     ports:
-      - "8080:8080"
+      - "50051:50051"
     networks:
       - go_app
 

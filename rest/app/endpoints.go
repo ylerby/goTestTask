@@ -94,5 +94,5 @@ func getUniqueHash(hash string, charSet string) string {
 		}
 	}
 
-	return "http://my_service/" + uniqueHash.String()
+	return uniqueHash.String()
 }
